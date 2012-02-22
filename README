@@ -1,2 +1,9 @@
 This is just a collection of small Ruby hacks for BibDesk. Most are taken from my integrated research workflow
 [researchr](http://github.com/houshuang/folders2web) ([screencast](http://reganmian.net/wiki/researchr:start)).
+
+The first script is anystyle-import.rb, which takes copied text and processes either by crossref DOI lookup, or
+using the anystyle parser. To use this script you need the following gems: (use gem install GEM, or sudo gem install GEM)
+- anystyle-parser
+- xml-simple
+
+If you want growl alerts, you also need to install growlnotify.
