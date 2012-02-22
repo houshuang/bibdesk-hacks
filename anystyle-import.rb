@@ -11,16 +11,16 @@
 
 # to use the crossref API, you need to request an API key here: http://www.crossref.org/requestaccount/
 
-Crossref_API = "YOUR_API_KEY"
+Crossref_API = "CROSSREF_API_GET_ONE_FOR_YOURSELF"
 
 $:.push(File.dirname($0))
 require 'utility-functions'
 
 # get text from clipboard
 search = utf8safe(pbpaste)
-
+search ="The Role of Metadata Supply Chains in DOI-Based Value-added Services John Erickson; ICSTI Forum 30 1999."
 # if doi
-if search.index("doi:")
+if search.downcase.index("doi:")
   require 'doi-bibtex'
   bibtex = lookup_doi(search, Crossref_API)
   growl "Failure", "DOI lookup not successful" unless bibtex
