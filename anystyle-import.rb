@@ -1,35 +1,24 @@
 # encoding: UTF-8
-# this was written by Stian Haklev (shaklev@gmail.com), licensed as do what you want with it
-
-# typically called through a keyboard shortcut, this script takes the text from the clipboard. 
-# if the text contains a DOI, it uses crossref to lookup the DOI (note that crossref requires an API)
-# if not, it uses the anystyle-parser library to try to parse the text citation
-# the output is a bibtex citation which can be imported into for example BibDesk
-
-# for free-text lookup, anystyle-parser is required (https://github.com/inukshuk/anystyle-parser) 
-# gem install anystyle-parser
-
-# to use the crossref API, you need to request an API key here: http://www.crossref.org/requestaccount/
-
-Crossref_API = "CROSSREF_API_GET_ONE_FOR_YOURSELF"
-
 $:.push(File.dirname($0))
+require 'open-uri'
 require 'utility-functions'
 
-# get text from clipboard
-search = utf8safe(pbpaste)
-search ="The Role of Metadata Supply Chains in DOI-Based Value-added Services John Erickson; ICSTI Forum 30 1999."
-# if doi
-if search.downcase.index("doi:")
-  require 'doi-bibtex'
-  bibtex = lookup_doi(search, Crossref_API)
-  growl "Failure", "DOI lookup not successful" unless bibtex
+# grab from clipboard, either look up DOI through API, or
+# use anystyle parser to convert text to bibtex. Paste to clipboard.
 
-# else parse freetext
-else
-  require 'anystyle/parser'   
-  bibtex = Anystyle.parse(search, :bibtex).to_s
+def lookup_doi(doi)
+  doi = doi.downcase.gsub('doi:','').gsub('http://','').gsub('dx.doi.org/','').gsub('doi>','').gsub('doi ','').strip
+  url = "http://dx.doi.org/#{doi}"
+  return open(url, "Accept" => "text/bibliography; style=bibtex").read
 end
 
-# put resulting bibtex on clipboard
+search = pbpaste
+if search.strip[0..2] == "doi"
+  bibtex = lookup_doi(search)
+  growl "Failure", "DOI lookup not successful" unless bibtex
+else
+  require 'anystyle/parser'
+  search.gsub!(/\n/,' ')
+  bibtex = Anystyle.parse(search, :bibtex).to_s
+end
 pbcopy (bibtex)
